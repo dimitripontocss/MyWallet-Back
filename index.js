@@ -5,6 +5,7 @@ import { MongoClient, ObjectId } from "mongodb";
 import bcrypt from "bcrypt"
 import Joi from "joi";
 import { v4 as uuid } from "uuid"
+import dayjs from "dayjs";
 
 dotenv.config();
 
@@ -113,17 +114,45 @@ app.post("/register", async (req,res)=>{
 
 	const { error } = registerSchema.validate(req.body);
 	if(error){
-		return res.sendStatus(422);
+		return res.status(422).send("Você deve preencher os campos corretamente!");
 	}
 	
+	const session = await db.collection("sessions").findOne({ token });
+	if(!session){
+		res.status(401).send("Ocorreram erros na sua autenticação! Faça Login novamente!");
+	}
+
+	const numberAmout = parseFloat(amount).toFixed(2)
+	const date = dayjs().format('DD/MM')
+    
+	await db.collection("registers").insertOne({ ...req.body,amount: numberAmout, userId: session.userId, date: date});
+	res.status(200).send("Transação concluída!");
+})
+
+app.get("/total", async (req,res)=>{
+	const { authorization } = req.headers;
+	const token = authorization?.replace("Bearer ", "");
+
 	const session = await db.collection("sessions").findOne({ token });
 	if(!session){
 		return res.sendStatus(401);
 	}
     
-	await db.collection("registers").insertOne({ ...req.body, userId: session.userId});
-	res.status(200).send("Transação concluída!");
+	const userRegisters = await db.collection("registers").find({userId: new ObjectId(session.userId)}).toArray();
+	const total = findBalance(userRegisters);
+	res.status(200).send({ total });
 })
+function findBalance(registers){
+	let balance = 0;
+	for(let i=0;i<registers.length;i++){
+		if(registers[i].type === "income"){
+			balance += registers[i].amount*1;
+		}else{
+			balance -= registers[i].amount*1;
+		}
+	}
+	return balance;
+}
 
 
 const PORT = process.env.PORTA_SERVER || 5001;
