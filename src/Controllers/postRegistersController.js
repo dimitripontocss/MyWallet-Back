@@ -1,7 +1,7 @@
 import Joi from "joi";
 import dayjs from "dayjs"
 
-import db from "./dataBaseController.js"
+import db from "../Database/DataBase.js"
 
 export async function postRegister(req,res){
 	const { authorization } = req.headers;

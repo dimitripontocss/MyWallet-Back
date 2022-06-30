@@ -1,6 +1,6 @@
 import {  ObjectId } from "mongodb";
 
-import db from "./dataBaseController.js"
+import db from "../Database/DataBase.js"
 
 export async function getTotal(req,res){
 	const { authorization } = req.headers;

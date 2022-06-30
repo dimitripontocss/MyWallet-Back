@@ -2,7 +2,7 @@ import { v4 as uuid } from "uuid"
 import Joi from "joi";
 import bcrypt from "bcrypt";
 
-import db from "./dataBaseController.js"
+import db from "../Database/DataBase.js"
 
 export async function login(req,res){
 	const { email, password } = req.body;
