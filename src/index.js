@@ -17,7 +17,7 @@ app.use(signupRouter);
 app.use(registerRouter);
 app.use(totalRouter);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log("servidor em pé na porta ", process.env.PORT)
 })
