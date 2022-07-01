@@ -4,33 +4,43 @@ import bcrypt from "bcrypt";
 import db from "../Database/DataBase.js"
 import loginSchema from "../JoiSchemas/loginSchema.js";
 
+import ApiError from "../Utils/apiError.js";
+import handleError from  "../Utils/handleError.js";
+
 export async function login(req,res){
-	const { email, password } = req.body;
+	try{
+		const { email, password } = req.body;
+		
+		const check = loginSchema.validate(req.body);
+		if(check.error){
+			throw new ApiError("Prencha todos os campos corretamente.",422);
+		}
 
-    
-	const check = loginSchema.validate(req.body);
-	if(check.error){
-		return res.status(422).send("Prencha todos os campos corretamente.");
-	}
-
-	const possibleUser = await db.collection("users").findOne({ email: email});
-	if(!possibleUser){
-		return res.status(401).send("Senha ou email incorretos!");
-	}
-	const passwordValidate = bcrypt.compareSync(password, possibleUser.password);
-	if(passwordValidate){
-		const token = uuid();
-
-		await db.collection("sessions").insertOne({
-			token,
-			userId: possibleUser._id
-		})
-		return res.status(201).send(
-			{
-				token: token,
-				name:possibleUser.name
-			});
-	}else{
-		return res.status(401).send("Senha ou email incorretos!");
+		const possibleUser = await db.collection("users").findOne({ email });
+		if(!possibleUser){
+			throw new ApiError("Senha ou email incorretos!",401);
+		}
+		const passwordValidate = bcrypt.compareSync(password, possibleUser.password);
+		if(passwordValidate){
+			const token = uuid();
+			await db.collection("sessions").insertOne({
+				token,
+				userId: possibleUser._id
+			})
+			return res.status(201).send(
+				{
+					token: token,
+					name:possibleUser.name
+				});
+		}else{
+			throw new ApiError("Senha ou email incorretos!",401);
+		}
+	}catch(error){
+		console.log(error);
+		if(error instanceof ApiError){
+			const {status ,message} = error;
+			return handleError({status, message, res});
+		}
+		return handleError({status:500, msg:error.message, res})
 	}
 }

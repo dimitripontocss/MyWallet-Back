@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 dotenv.config();
 
-app.use(loginRouter)
+app.use(loginRouter);
 app.use(signupRouter);
 app.use(registerRouter);
 app.use(totalRouter);
