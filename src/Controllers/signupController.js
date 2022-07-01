@@ -1,18 +1,13 @@
-import Joi from "joi";
 import bcrypt from "bcrypt";
 
 import db from "../Database/DataBase.js"
+import signupSchema from "../JoiSchemas/signupSchema.js";
 
 export async function signup(req,res){
     const {name, email, password, passwordConfirmation} = req.body;
 
-    const registerSchema = Joi.object({
-		name: Joi.string().required(),
-		email: Joi.string().email().required(),
-		password: Joi.string().required(),
-		passwordConfirmation: Joi.string().required()
-	});
-	const { error } = registerSchema.validate(req.body);
+    
+	const { error } = signupSchema.validate(req.body);
 	if(error){
 		return res.status(422).send("Prencha todos os campos corretamente.");
 	}

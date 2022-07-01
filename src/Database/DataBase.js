@@ -9,9 +9,9 @@ let db;
 try {
     await mongoClient.connect()
     db = mongoClient.db("myWallet") 
-    console.log("conexão com o banco de dados estabelecida")
+    console.log("Mongo conected")
 } catch (e) {
-    console.log("erro ao se conectar com o banco de dados", e)
+    console.log("Not conected to mongo error:", e)
 }
 
 export default db;

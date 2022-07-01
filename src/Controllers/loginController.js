@@ -1,16 +1,13 @@
 import { v4 as uuid } from "uuid"
-import Joi from "joi";
 import bcrypt from "bcrypt";
 
 import db from "../Database/DataBase.js"
+import loginSchema from "../JoiSchemas/loginSchema.js";
 
 export async function login(req,res){
 	const { email, password } = req.body;
 
-    const loginSchema = Joi.object({
-		email: Joi.string().email().required(),
-		password: Joi.string().required(),
-	});
+    
 	const check = loginSchema.validate(req.body);
 	if(check.error){
 		return res.status(422).send("Prencha todos os campos corretamente.");
